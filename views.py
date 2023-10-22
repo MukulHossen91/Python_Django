@@ -1,103 +1,51 @@
 from django.shortcuts import render
-from .forms import BuildingAdd, ModifySuccessForm
 from django.http import HttpResponseRedirect
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, SetPasswordForm, UserChangeForm
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from product.forms import RecentProduct
+from .models import laptop
+from django.http import HttpResponse
+
+
 # Create your views here.
 
+def cake(request):
+    return render(request, 'product/product.html')
 
-def customer(request):
-    return render(request, 'review/review.html')
+def send(request):
+    return render(request, 'product/submit.html')
 
-def admin_success(request):
-    return render(request, 'review/adminsuccess.html')
 
-#Registration form
-def building_form(request):
+def details(request):
     if request.method == 'POST':
-        frm = BuildingAdd(request.POST)
+        frm = RecentProduct(request.POST)
         if frm.is_valid():
-            frm.save()
-            return HttpResponseRedirect('/rvw/adminsuccess/')
-    else:
-        frm = BuildingAdd
-    return render(request, 'review/building.html', {'form' : frm})
+            mL = frm.cleaned_data['mobile']
+            re_ml = frm.cleaned_data['re_mobile']
+            lp = frm.cleaned_data['laptop']
+            email = frm.cleaned_data['email']
+            pas = frm.cleaned_data['password']
+            ab = frm.cleaned_data['about']
+            text = frm.cleaned_data['textarea']
+            check = frm.cleaned_data['checkbox']
+            ram = frm.cleaned_data['ram']
+            ssd = frm.cleaned_data['ssd']
+            you =  frm.cleaned_data['youtube_chanel']
+            buy = laptop(mobile = mL, re_mobile = re_ml, laptop = lp, email = email, password = pas, about = ab, textarea = text, checkbox = check, ram = ram, ssd = ssd, youtube_chanel = you)
+            buy.save()
 
-#Login form
+            return HttpResponseRedirect('/pdc/successfully')
+        
 
-def login_form(request):
-    if request.method == "POST":
-        frm= AuthenticationForm(request=request, data = request.POST)
-        if frm.is_valid():
-            usern = frm.cleaned_data['username']
-            userp = frm.cleaned_data['password']
-            user = authenticate(username = usern, password = userp)
-            if user is not None:
-                login(request, user)
-                return HttpResponseRedirect('/rvw/success/')
     else:
-        frm = AuthenticationForm()
-    return render(request, 'review/login.html', {'form': frm})
+        frm = RecentProduct(auto_id=True, label_suffix=' - ')
+        print("GET Statement")
     
-
-#successfully login
-def login_success(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            frm = ModifySuccessForm(request.POST, instance = request.user)
-            if frm.is_valid():
-                frm.save()
-
-        else:
-            frm = ModifySuccessForm(instance = request.user)
-        return render(request, 'review/success.html', {'form': frm})
-    
-    else:
-        return HttpResponseRedirect('/login/')
+    return render(request, 'product/recent.html', {'form' : frm})
 
 
-#logout
-def logout_form(request):
-    logout(request)
-    return HttpResponseRedirect('/rvw/login/')
 
-#password change using old password
-def password_change(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            frm = PasswordChangeForm(user=request.user, data=request.POST)
-            if frm.is_valid():
-                frm.save()
-                update_session_auth_hash(request, frm.user)
-                return HttpResponseRedirect('/rvw/success/')
-            
-        else:
-            frm = PasswordChangeForm(user = request.user)
-        return render(request, 'review/cpass.html', {'form':frm})
-    
-    else:
-        return HttpResponseRedirect('/rvw/login/')
+def midd(request):
+    print("firs Middleware")
+    return HttpResponse("This is 1st middleware")
 
-
-#without old passworld
-
-def change_pass_without_oldpass(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            frm = SetPasswordForm(user=request.user, data=request.POST)
-            if frm.is_valid():
-                frm.save()
-                update_session_auth_hash(request, frm.user)
-                return HttpResponseRedirect('/rvw/success/')
-            
-        else:
-            frm = SetPasswordForm(user = request.user)
-        return render(request, 'review/withoutoldpass.html', {'form':frm})
-    
-    else:
-        return HttpResponseRedirect('/rvw/login/')
-
-
-   
 
 
