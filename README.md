@@ -1,2 +1,2 @@
-# Python_Django
+# Python_Django_1st_project
 Python_Django
